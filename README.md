@@ -6,9 +6,15 @@ Tailspin Toys is a crowdfunding platform for games with a developer theme. The p
 
 - **Astro 7** — pages, layouts, components, and routing. `output: 'static'`, so the whole site is prerendered to HTML at build time.
 - **Drizzle ORM + Node SQLite** — the data layer. The schema lives in `db/schema.ts`; data is seeded from `db/games.csv`. Migrations are managed with `drizzle-kit`.
-- **Tailwind CSS v4** — styling via utility classes (dark theme).
+- **Tailwind CSS v4** — styling via utility classes (dark theme with high-contrast accessibility mode).
 - **Vitest** — unit tests for the data layer and pure transforms.
 - **Playwright** — end-to-end tests run against the built static site.
+
+## Accessibility Features
+
+- **High-Contrast Mode** — A dedicated toggle in the header switches between default dark theme and high-contrast styling (meeting WCAG AAA contrast ratios), persisting preference across page reloads via `localStorage` and respecting `prefers-contrast: more`.
+- **Skip to Main Content Link** — Keyboard navigation support allowing screen reader and keyboard users to bypass header navigation directly to main content.
+- **Full WCAG 2.1 Level AA Compliance** — Tested with `@axe-core/playwright`, proper ARIA attributes, semantic landmarks, and visible focus indicators.
 
 The database is migrated and seeded automatically before `dev`/`build` (via the `predev`/`prebuild` npm scripts) and is written to the gitignored `tailspin.db` file.
 
