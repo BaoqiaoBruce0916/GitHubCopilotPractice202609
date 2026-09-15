@@ -1,1 +1,134 @@
 @import "tailwindcss";
+
+/* High Contrast Mode */
+html.high-contrast {
+  --contrast-bg: #000000;
+  --contrast-card-bg: #0a0a0a;
+  --contrast-text: #ffffff;
+  --contrast-border: #ffffff;
+  --contrast-accent: #ffff00;
+  --contrast-accent-text: #000000;
+}
+
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast header {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+html.high-contrast [data-testid="high-contrast-toggle"] {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast [data-testid="high-contrast-toggle"]:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast [data-testid="menu-toggle"] {
+  border: 2px solid #ffffff !important;
+}
+
+html.high-contrast #menu {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast #menu a {
+  color: #ffffff !important;
+}
+
+html.high-contrast #menu a:hover,
+html.high-contrast #menu a:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+html.high-contrast [data-testid="game-card"],
+html.high-contrast [data-testid="game-details"],
+html.high-contrast [data-testid="about-section"] > div,
+html.high-contrast [data-testid="not-found"],
+html.high-contrast [data-testid="empty-state"] {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.high-contrast [data-testid="game-card"]:hover,
+html.high-contrast [data-testid="game-card"]:focus,
+html.high-contrast [data-testid="game-card"]:focus-visible {
+  border-color: #ffff00 !important;
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px !important;
+}
+
+html.high-contrast [data-testid="game-title"],
+html.high-contrast [data-testid="page-hero-title"],
+html.high-contrast [data-testid="about-heading"],
+html.high-contrast [data-testid="game-details-title"],
+html.high-contrast [data-testid="not-found-heading"] {
+  color: #ffffff !important;
+}
+
+html.high-contrast [data-testid="game-description"],
+html.high-contrast [data-testid="game-details-description"],
+html.high-contrast [data-testid="page-hero-subtitle"],
+html.high-contrast [data-testid="about-section"] p,
+html.high-contrast [data-testid="not-found-text"],
+html.high-contrast [data-testid="empty-state-text"] {
+  color: #ffffff !important;
+}
+
+html.high-contrast [data-testid="game-rating"] {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast [data-testid="game-rating"] span {
+  color: #ffff00 !important;
+}
+
+html.high-contrast [data-testid="game-category"],
+html.high-contrast [data-testid="game-publisher"],
+html.high-contrast [data-testid="game-details-category"],
+html.high-contrast [data-testid="game-details-publisher"] {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast button,
+html.high-contrast [data-testid="back-game-button"],
+html.high-contrast [data-testid="not-found-home-link"],
+html.high-contrast a[class*="bg-blue"] {
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast button:hover,
+html.high-contrast [data-testid="back-game-button"]:hover,
+html.high-contrast [data-testid="not-found-home-link"]:hover,
+html.high-contrast a[class*="bg-blue"]:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast button:focus-visible,
+html.high-contrast a:focus-visible,
+html.high-contrast input:focus-visible,
+html.high-contrast [tabindex="0"]:focus-visible,
+html.high-contrast [data-testid="high-contrast-toggle"]:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px !important;
+}
+
