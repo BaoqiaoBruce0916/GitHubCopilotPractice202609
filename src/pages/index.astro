@@ -1,14 +1,22 @@
 ---
+// Prerenders the game catalog and supplies client-side category/publisher filters.
 import Layout from '../layouts/Layout.astro';
 import GameCard from '../components/GameCard.astro';
 import PageHero from '../components/PageHero.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { getDatabase } from '../lib/db';
 import { getAllGames } from '../lib/games';
+import { getAllCategories } from '../lib/categories';
+import { getAllPublishers } from '../lib/publishers';
 
 export const prerender = true;
 
-const games = await getAllGames(getDatabase());
+const db = getDatabase();
+const [games, categories, publishers] = await Promise.all([
+  getAllGames(db),
+  getAllCategories(db),
+  getAllPublishers(db),
+]);
 ---
 
 <Layout title="Tailspin Toys - Crowdfunding your new favorite game!">
@@ -24,9 +32,101 @@ const games = await getAllGames(getDatabase());
       {games.length === 0 ? (
         <EmptyState text="No games available at the moment." />
       ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
-          {games.map((game) => <GameCard game={game} />)}
-        </div>
+        <>
+          <form
+            id="game-filters"
+            class="mb-8 rounded-xl border border-slate-700 bg-slate-800/60 p-5 shadow-lg"
+            data-testid="game-filters"
+          >
+            <fieldset>
+              <legend class="mb-3 text-lg font-semibold text-slate-100">Filter games</legend>
+              <div class="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+                <div>
+                  <span class="mb-2 block text-sm font-medium text-slate-200">Categories</span>
+                  <div class="flex flex-wrap gap-3" data-testid="category-filters">
+                    {categories.map((category) => (
+                      <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-200 transition-colors hover:border-blue-500">
+                        <input
+                          type="checkbox"
+                          name="category"
+                          value={category.id}
+                          class="h-4 w-4 rounded border-slate-500 bg-slate-800 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          data-testid={`category-filter-${category.id}`}
+                        />
+                        {category.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="publisher-filter" class="text-sm font-medium text-slate-200">Publisher</label>
+                  <select
+                    id="publisher-filter"
+                    name="publisher"
+                    class="min-w-52 rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    data-testid="publisher-filter"
+                  >
+                    <option value="">All publishers</option>
+                    {publishers.map((publisher) => <option value={publisher.id}>{publisher.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <button
+                type="reset"
+                class="mt-5 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-blue-500 hover:bg-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                data-testid="reset-filters"
+              >
+                Reset filters
+              </button>
+            </fieldset>
+          </form>
+
+          <p id="filter-status" class="mb-4 text-sm text-slate-300" role="status" aria-live="polite" data-testid="filter-status">
+            Showing {games.length} games
+          </p>
+          <EmptyState text="No games match the selected filters." />
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid="games-grid">
+            {games.map((game) => <GameCard game={game} />)}
+          </div>
+          <script>
+            const filterForm = document.querySelector<HTMLFormElement>('#game-filters');
+            const categoryInputs = document.querySelectorAll<HTMLInputElement>('input[name="category"]');
+            const publisherInput = document.querySelector<HTMLSelectElement>('#publisher-filter');
+            const gameCards = document.querySelectorAll<HTMLElement>('[data-testid="game-card"]');
+            const filterStatus = document.querySelector<HTMLElement>('#filter-status');
+            const emptyState = document.querySelector<HTMLElement>('[data-testid="empty-state"]');
+
+            const updateGames = (): void => {
+              const selectedCategories = new Set(
+                Array.from(categoryInputs)
+                  .filter((input) => input.checked)
+                  .map((input) => input.value),
+              );
+              const selectedPublisher = publisherInput?.value ?? '';
+              let visibleCount = 0;
+
+              for (const gameCard of gameCards) {
+                const categoryMatches =
+                  selectedCategories.size === 0 || selectedCategories.has(gameCard.dataset.categoryId ?? '');
+                const publisherMatches =
+                  selectedPublisher === '' || gameCard.dataset.publisherId === selectedPublisher;
+                const isVisible = categoryMatches && publisherMatches;
+
+                gameCard.hidden = !isVisible;
+                if (isVisible) visibleCount++;
+              }
+
+              if (filterStatus) {
+                filterStatus.textContent = `Showing ${visibleCount} ${visibleCount === 1 ? 'game' : 'games'}`;
+              }
+              if (emptyState) emptyState.hidden = visibleCount !== 0;
+            };
+
+            filterForm?.addEventListener('change', updateGames);
+            filterForm?.addEventListener('reset', () => window.requestAnimationFrame(updateGames));
+            updateGames();
+          </script>
+        </>
       )}
     </div>
   </div>

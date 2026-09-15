@@ -1,3 +1,7 @@
+/**
+ * End-to-end coverage for catalog navigation and filtering.
+ */
+
 import { test, expect, type Response } from '@playwright/test';
 
 test.describe('Game Listing and Navigation', () => {
@@ -21,6 +25,49 @@ test.describe('Game Listing and Navigation', () => {
       const gameCards = page.getByTestId('game-card');
       await expect(gameCards.first().getByTestId('game-title')).toBeVisible();
       await expect(gameCards.first().getByTestId('game-title')).not.toBeEmpty();
+    });
+  });
+
+  test('should filter games by categories and publisher, then reset', async ({ page }) => {
+    await test.step('Navigate to the catalog and select multiple categories', async () => {
+      await page.goto('/');
+      await page.getByRole('checkbox', { name: 'Action', exact: true }).check();
+      await page.getByRole('checkbox', { name: 'Strategy', exact: true }).check();
+
+      await expect(page.getByTestId('filter-status')).toHaveText('Showing 9 games');
+      await expect(page.locator('[data-testid="game-card"]:not([hidden])')).toHaveCount(9);
+    });
+
+    await test.step('Combine the category selection with a publisher', async () => {
+      await page.getByLabel('Publisher').selectOption({ label: 'DevMasters Inc.' });
+
+      await expect(page.getByTestId('filter-status')).toHaveText('Showing 2 games');
+      await expect(
+        page.getByTestId('game-card').filter({ hasText: 'Pipeline Conquest' }),
+      ).toBeVisible();
+
+      await page.getByRole('checkbox', { name: 'Strategy', exact: true }).uncheck();
+      await expect(page.getByTestId('filter-status')).toHaveText('Showing 1 game');
+      await expect(
+        page.getByTestId('game-card').filter({ hasText: 'Terminal Turbulence' }),
+      ).toBeVisible();
+
+      await page.getByTestId('publisher-filter').evaluate((element: HTMLSelectElement) => {
+        element.add(new Option('Missing Publisher', '99999'));
+        element.value = '99999';
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      await expect(page.getByTestId('filter-status')).toHaveText('Showing 0 games');
+      await expect(page.getByTestId('empty-state')).toBeVisible();
+    });
+
+    await test.step('Reset the filters and restore the catalog', async () => {
+      await page.getByTestId('reset-filters').click();
+
+      await expect(page.getByTestId('filter-status')).toHaveText('Showing 21 games');
+      await expect(page.locator('[data-testid="game-card"]:not([hidden])')).toHaveCount(21);
+      await expect(page.getByTestId('empty-state')).toBeHidden();
     });
   });
 
